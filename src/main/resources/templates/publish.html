@@ -1,0 +1,122 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- 踩过的坑，springboot引入静态资源路径不要加/static/，否则会报404-->
+    <title>发布文章</title>
+    <head th:insert="~{import :: head}"></head>
+    <link rel="stylesheet" href="/bootstrap-tagsinput/bootstrap-tagsinput.css">
+    <link rel="stylesheet" href="/markdown/css/editormd.css">
+    <script src="/bootstrap-tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="/markdown/editormd.min.js"></script>
+
+
+</head>
+<script>
+    $(function () {
+        var CodeMirror_height = undefined;
+        var editor = editormd("article-editor", {
+            width: "100%",
+            height: "400px",
+            path: "/markdown/lib/",
+            placeholder:"",
+            codeFold : true,
+            saveHTMLToTextarea : true,
+            imageUpload    : true,
+            imageFormats   : ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+            imageUploadURL : "/img/upload",
+            autoFocus:false,
+            toolbarIcons : function() {  //自定义工具栏，后面有详细介绍
+                return [
+                    "undo", "redo", "|",
+                    "bold", "del", "italic", "quote", "ucwords", "uppercase", "lowercase", "|",
+                    "list-ul", "list-ol", "hr", "|",
+                    "link", "reference-link", "image", "code", "preformatted-text", "code-block", "table", "html-entities", "pagebreak", "|",
+                    "watch", "preview",  "|",
+                    "help"
+                ]; // full, simple, mini
+            },
+            //进入全屏页面修改
+            onfullscreen:function () {
+                CodeMirror_height = $(".CodeMirror-gutters").css("height");
+                $(".CodeMirror-gutters").css("height","100%");
+                $("#tagDiv").css("display","none");
+                //隐藏标签栏
+            },
+            //退出全屏页面恢复
+            onfullscreenExit:function () {
+                //显示标签栏
+                //CodeMirror-gutters
+                $(".CodeMirror-gutters").css("height","100%");
+                $("#tagDiv").css("display","block");
+        }
+        });
+        editormd.loadPlugin("/markdown/plugins/image-handle-paste/image-handle-paste", function(){
+            editor.imagePaste();
+        });
+    });
+</script>
+<body>
+<div th:replace="navigation :: nav"></div>
+<!-- 问题发布栏 -->
+<div class="row main">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"><h4><i class="iconfont icon-fabu"></i>&nbsp;发起</h4></div>
+        </div>
+
+
+        <hr>
+        <form id="publishForm">
+            <div style="display: none">
+                <input type="text" id="id" name="id" th:value="${article.id}"/>
+            </div>
+            <div class="form-group">
+                <label for="title">文章标题:</label>
+                <input type="text" class="form-control" th:value="${article.title}" id="title" name="title"
+                       placeholder="填写标题......" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label for="description">文章内容(请参考右侧提示填写):</label>
+                <div id="article-editor">
+                    <textarea id="description" style="display: none" name="description" th:text="${article.description}"
+                              class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="tag">标签:</label>
+                <input type="text" class="form-control tag-input" id="tag" name="tag" th:value="${article.tag}"
+                       data-role="tagsinput" placeholder="请填写标签......">
+            </div>
+            <div class="form-group" id="tagDiv">
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" th:each="tagMap,index :${tags}" th:class="${index.first ? 'active':''}"><a
+                            th:href="${'#'+tagMap.key}" aria-controls="home" role="tab" data-toggle="tab"
+                            th:text="${tagMap.key}"></a></li>
+                </ul>
+
+                <!-- Tab panes -->
+
+                <div class="tab-content">
+                    <div role="tabpanel" th:id="${tagMap.key}" th:each="tagMap,index:${tags}"
+                         th:class="${index.first ? 'active tab-pane ':'tab-pane '}">
+                        <div class="tab-tags-inline-block">
+                            <span class="label label-info tags " th:each="tag :${tagMap.value}">
+                                <span class="glyphicon glyphicon-tags"> </span>
+                                <span th:text="${tag.getTagName()}" onclick="addTag(this)"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div>
+                <button type="button" onclick="publish()" class="btn btn-success btn-publish">发布</button>
+            </div>
+        </form>
+    </div>
+
+</div>
+<head th:insert="~{footer :: foot}"></head>
+</body>
+</html>

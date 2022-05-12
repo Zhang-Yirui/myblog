@@ -1,0 +1,19 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- 踩过的坑，springboot引入静态资源路径不要加/static/，否则会报404-->
+    <title>出错了</title>
+    <head th:insert="~{import :: head}"></head>
+</head>
+<body>
+
+<div th:replace="navigation :: nav"></div>
+
+<div class="jumbotron">
+    <h1>哎呀,出错了！</h1>
+    <h3 th:text="${errorMsg}"></h3>
+    <p><a class="btn btn-primary btn-lg" href="/" role="button">回到首页</a></p>
+</div>
+<head th:insert="~{footer :: foot}"></head>
+</body>
+</html>

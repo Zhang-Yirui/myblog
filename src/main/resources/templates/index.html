@@ -1,0 +1,58 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- 踩过的坑，springboot引入静态资源路径不要加/static/，否则会报404-->
+    <title>个人博客</title>
+    <head th:insert="~{import :: head}"></head>
+</head>
+<script>
+    window.onload=function () {
+        var path = window.localStorage.getItem("historyPath");
+        var toHistory = window.localStorage.getItem("toHistory");
+        if(toHistory=="true"&&path!=""&&path!=null){
+            window.location.href=path;
+            window.localStorage.removeItem("historyPath");
+            window.localStorage.removeItem("toHistory");
+        }
+
+    }
+</script>
+<body>
+
+<div th:replace="navigation :: nav"></div>
+
+<div class="row main">
+    <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12 col-left">
+        <div class="row">
+            <div class="col-lg-3 col-md-3 col-sm-4 col-xs-6"><h4><i class="iconfont icon-liebiao"></i>&nbsp;列表</h4></div>
+            <div class="col-lg-6 col-md-6 col-sm-4 col-xs-6 alertMsg">
+            <div class="alert alert-danger alert-dismissible alert-error" role="alert" th:if="${error != null}">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <span th:text="${error}"></span>
+            </div>
+        </div>
+            <div class="col-lg-3 col-md-3 col-sm-4"></div>
+        </div>
+        <div class="media media_list" th:each="article : ${articleList}">
+            <div class="media-left">
+                <a href="#">
+                    <img class="media-object img-rounded" th:src="${article.user.getAvatarUrl()}"  >
+                </a>
+            </div>
+            <div class="media-body">
+                <a th:href="@{/article/detail/{id}(id=${article.getId()})}"><h4 class="media-heading" th:text="${article.title}">标题标题</h4></a>
+                <span th:text="${article.answerCount}"></span> 个回复 • <span th:text="${article.readCount}"></span> 次浏览 • 发布时间<span th:text="${#dates.format(article.createTime,'yyyy-MM-dd HH:mm:ss')}"></span>
+            </div>
+        </div>
+
+        <!-- 分页 -->
+        <div th:replace="pagination :: page"></div>
+
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-3 hidden-xs">
+        <h4>热门话题、广告栏、热门标签栏等</h4>
+    </div>
+</div>
+<head th:insert="~{footer :: foot}"></head>
+</body>
+</html>
